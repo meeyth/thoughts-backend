@@ -12,7 +12,7 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
 
         if (!token) {
             // console.log("hello");
-            return res.status(403).json(new ApiResponse(403, "Unauthorized request", "Failed"))
+            return res.status(403).json(new ApiResponse(403, "Forbidden request", "Failed"))
             // throw new ApiError(403, "Unauthorized request")
         }
         const decodedToken = jwt.verify(token, process.env.access_token_secret)
@@ -21,7 +21,7 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
         const user = await User.findById(decodedToken?._id).select("--password --refreshToken")
 
         if (!user) {
-            return res.status(403).json(new ApiResponse(403, "Unauthorized request", "Failed"))
+            return res.status(403).json(new ApiResponse(403, "Forbidden request", "Failed"))
             // throw new ApiError(403, "Invalid access token")
         }
 
