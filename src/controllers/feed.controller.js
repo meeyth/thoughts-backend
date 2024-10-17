@@ -1,5 +1,5 @@
 import { ApiResponse } from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/asyncHandler.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
 import { Follow } from "../models/follow.model.js"
 
 
@@ -29,46 +29,56 @@ export const getUserFeed = asyncHandler(async (req, res) => {
                             localField: "owner",
                             foreignField: "_id",
                             as: "owner",
-                            // pipeline: [
-                            //     {
-                            //         $project: {
-                            //             fullname: 1,
-                            //             username: 1,
-                            //             avatar:1
-                            //         }
-                            //     }
-                            // ]
+                            pipeline: [
+                                {
+                                    $project: {
+                                        fullname: 1,
+                                        username: 1,
+                                        avatar: 1
+                                    }
+                                },
+                                // {
+                                //     $unwind: "$owner"
+                                // }
+                            ]
                         },
                     },
-                    {
-                        $project: {
-                            // fullname: 1,
-                            // username: 1,
-                            // avatar: 1,
-                            owner:1
-                        }
-                    },
-                    {
-                        $addFields: {
-                            owner: {
-                                $first: "$owner"
-                            },
-                            feeds: {
-                                $second: "$feeds"
-                            }
-                        }
-                    }
+                    // {
+                    //     $project: {
+                    //         feeds: 1,
+                    //         owner: 1
+                    //     }
+                    // },
+                    // {
+                    //     $addFields: {
+                    //         owner: {
+                    //             $first: "$owner"
+                    //         },
+                    //         feeds: {
+                    //             $second: "$feeds"
+                    //         }
+                    //     }
+                    // }
                 ]
             }
         },
+        // {
+        //     $lookup: {
+        //         from: "users",
+        //         localField: "feeds.owner",
+        //         foreignField: "_id",
+        //         as: "owner",
+        //     }
+        // },
         {
             $project: {
                 feeds: 1,
-                owner:1
+                // owner: 1
             }
         },
         {
-            $unwind: "$feeds"
+            $unwind: "$feeds",
+
         },
         {
             $sort: {
@@ -77,6 +87,8 @@ export const getUserFeed = asyncHandler(async (req, res) => {
         }
     ])
 
-    const paginatedUserFeeds = await Follow.aggregatePaginate(feeds,options)
-    return res.status(200).json(new ApiResponse(200,paginatedUserFeeds,"feed fetched"))
+    const paginatedUserFeeds = await Follow.aggregatePaginate(feeds, options)
+
+    // console.log(paginatedUserFeeds);
+    return res.status(200).json(new ApiResponse(200, paginatedUserFeeds, "feed fetched"))
 })
