@@ -6,13 +6,13 @@ import {
     deleteBlog,
     getSpecificBlog
 } from "../controllers/blog.controller.js"
-import {upload} from '../middlewares/multer.middleware.js'
+import { upload } from '../middlewares/multer.middleware.js'
 import { verifyJwt } from "../middlewares/Auth.middleware.js"
 
 
 const router = Router()
 
-router.route("/user-blog").get(verifyJwt,getUserBlog)
+router.route("/user-blog").get(verifyJwt, getUserBlog)
 
 //secured routes
 router.route("/add-blog").post(
@@ -37,7 +37,7 @@ router.route("/update-blog").put(
     updateBlog)
 
 router.route("/delete-blog").delete(verifyJwt, deleteBlog)
-router.route("/get-blog").get(verifyJwt, getSpecificBlog)
+router.route("/get-blog/:blogId").get(verifyJwt, getSpecificBlog)
 
 
 export default router  

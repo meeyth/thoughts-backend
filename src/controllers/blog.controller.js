@@ -1,8 +1,8 @@
 import mongoose, { isValidObjectId } from "mongoose"
-import {ApiError} from "../utils/ApiError.js"
+import { ApiError } from "../utils/ApiError.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
-import {uploadOnCloudinary} from "../utils/cloudinary.js"
-import {asyncHandler} from "../utils/asyncHandler.js"
+import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
 import { Blog } from "../models/blog.model.js"
 import { User } from "../models/user.model.js"
 
@@ -10,18 +10,18 @@ import { User } from "../models/user.model.js"
 //successfull
 const getUserBlog = asyncHandler(async (req, res) => {
     const { userId } = req.body
-    const { page , limit  } = req.query
+    const { page, limit } = req.query
     const options = {
         page,
         limit
     }
-    
+
     console.log(options)
 
-    if (!userId||!isValidObjectId(userId)) {
-        throw new ApiError(400,"User isn't registered or userId is invalid")
+    if (!userId || !isValidObjectId(userId)) {
+        throw new ApiError(400, "User isn't registered or userId is invalid")
     }
-    const userBlogs =  Blog.aggregate([
+    const userBlogs = Blog.aggregate([
         {
             $match: {
                 owner: new mongoose.Types.ObjectId(userId)
@@ -29,7 +29,7 @@ const getUserBlog = asyncHandler(async (req, res) => {
         }
     ])
 
-    const paginatedUserBlogs = await Blog.aggregatePaginate(userBlogs,options)
+    const paginatedUserBlogs = await Blog.aggregatePaginate(userBlogs, options)
 
     return res.status(200)
         .json(new ApiResponse(200, paginatedUserBlogs, "Fetched all blogs successfully"))
@@ -38,9 +38,9 @@ const getUserBlog = asyncHandler(async (req, res) => {
 
 //done
 const addBlog = asyncHandler(async (req, res) => {
-   
-    const { title,tag,content } = req.body
-    
+
+    const { title, tag, content } = req.body
+
     if (!content || !title) {
         throw new ApiError(400, "Required fields are mandatory");
     }
@@ -48,13 +48,13 @@ const addBlog = asyncHandler(async (req, res) => {
     const imageLocalPath = req.files?.image[0]?.path;
 
     if (!imageLocalPath) {
-        throw new ApiError(400,"image file is required")
+        throw new ApiError(400, "image file is required")
     }
 
     const image = await uploadOnCloudinary(imageLocalPath)
-    
+
     if (!image) {
-        throw new ApiError(400,"image file is required")
+        throw new ApiError(400, "image file is required")
     }
 
     const newBlog = await Blog.create({
@@ -67,29 +67,31 @@ const addBlog = asyncHandler(async (req, res) => {
 
     console.log(req.user)
     if (!newBlog) {
-        throw new ApiError(400,"Couldn't create new Blog")
+        throw new ApiError(400, "Couldn't create new Blog")
     }
 
     return res.status(200)
         .json(new ApiResponse(200, newBlog, "Created new blog successfully"))
-    
+
 })
 
 //successfull
 const getSpecificBlog = asyncHandler(async (req, res) => {
 
-    const { blogId } = req.body
-    
-    if (!blogId||!isValidObjectId(blogId)) {
+    const { blogId } = req.params
+
+    // console.log(req.params);
+
+    if (!blogId || !isValidObjectId(blogId)) {
         throw new ApiError(400, "Blog id is invalid")
     }
     const verifyBlog = await Blog.findById(blogId)
 
     await Blog.findById(blogId).updateOne({
-            $inc:{totalReads:1}
-        })
+        $inc: { totalReads: 1 }
+    })
     if (!verifyBlog) {
-        throw new ApiError(400,"Blog does not exist")
+        throw new ApiError(400, "Blog does not exist")
     }
 
 
@@ -101,7 +103,7 @@ const getSpecificBlog = asyncHandler(async (req, res) => {
     return res.status(200)
         .json(new ApiResponse(200, verifyBlog, "Fetched successfully"))
 
-    
+
 })
 
 //successfull
@@ -111,31 +113,31 @@ const updateBlog = asyncHandler(async (req, res) => {
     const { newContent } = req.body
     const { tag } = req.body
     const { title } = req.body
-    
-    if (!blogId||!isValidObjectId(blogId)) {
+
+    if (!blogId || !isValidObjectId(blogId)) {
         throw new ApiError(400, "Blog id is invalid")
     }
     const verifyBlog = await Blog.findById(blogId)
-    
+
     if (!verifyBlog) {
-        throw new ApiError(400,"Blog does not exist")
+        throw new ApiError(400, "Blog does not exist")
     }
     if (verifyBlog?.owner.toString() !== req.user?._id.toString()) {
-        throw new ApiError(400,"Only valid user can update blog")
+        throw new ApiError(400, "Only valid user can update blog")
     }
 
 
     const imageLocalPath = req.files?.image[0]?.path;
-    
+
     //updating image
     if (!imageLocalPath) {
-        throw new ApiError(400,"Image file is missing")
+        throw new ApiError(400, "Image file is missing")
     }
     //todo-delete old image after successfully adding the new in video 19
     const image = await uploadOnCloudinary(imageLocalPath)
-    
+
     if (!image.url) {
-        throw new ApiError(400,"Error while uploading on avatar")
+        throw new ApiError(400, "Error while uploading on avatar")
     }
 
     const updatedBlog = await Blog.findByIdAndUpdate(blogId,
@@ -145,14 +147,14 @@ const updateBlog = asyncHandler(async (req, res) => {
                 content: newContent,
                 tag: tag,
                 title: title,
-                
+
             }
         },
-        { new: true }  
+        { new: true }
     ).select("-password")
 
     if (!updatedBlog) {
-        throw new ApiError(400,"Couldn't update blog")
+        throw new ApiError(400, "Couldn't update blog")
     }
     return res.status(200)
         .json(new ApiResponse(200, updatedBlog, "Updated successfully"))
@@ -160,30 +162,30 @@ const updateBlog = asyncHandler(async (req, res) => {
 
 //successfull
 const deleteBlog = asyncHandler(async (req, res) => {
-    
+
     const { blogId } = req.body
     if (!blogId) {
-        throw new ApiError(400,"Blog id is not valid")
+        throw new ApiError(400, "Blog id is not valid")
     }
 
     // console.log(commentId)
     const verifyUser = await Blog.findById(blogId)
     console.log(verifyUser)
     if (verifyUser.owner.toString() !== req.user?._id.toString()) {
-        throw new ApiError(400,"Only owner can delete the blog")
+        throw new ApiError(400, "Only owner can delete the blog")
     }
     const checkBlog = await Blog.findByIdAndDelete(blogId)
-    
+
     if (!checkBlog) {
-        throw new ApiError(400,"Couldn't delete the blog")
+        throw new ApiError(400, "Couldn't delete the blog")
     }
     return res.status(200)
-    .json(new ApiResponse(200,checkBlog,"Blog deleted successfully"))
+        .json(new ApiResponse(200, checkBlog, "Blog deleted successfully"))
 })
 
 export {
-    getUserBlog, 
-    addBlog, 
+    getUserBlog,
+    addBlog,
     updateBlog,
     deleteBlog,
     getSpecificBlog
