@@ -6,6 +6,7 @@ import { Follow } from "../models/follow.model.js"
 export const getUserFeed = asyncHandler(async (req, res) => {
 
     const { page, limit } = req.query
+    console.log(page, limit);
     const options = {
         page,
         limit
@@ -89,6 +90,6 @@ export const getUserFeed = asyncHandler(async (req, res) => {
 
     const paginatedUserFeeds = await Follow.aggregatePaginate(feeds, options)
 
-    // console.log(paginatedUserFeeds);
+    // console.log(paginatedUserFeeds.docs);
     return res.status(200).json(new ApiResponse(200, paginatedUserFeeds, "feed fetched"))
 })

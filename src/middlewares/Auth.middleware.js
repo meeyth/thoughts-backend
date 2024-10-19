@@ -19,7 +19,7 @@ export const verifyJwt = asyncHandler(async (req, res, next) => {
         const decodedToken = jwt.verify(token, process.env.access_token_secret)
         // console.log(decodedToken);
 
-        const user = await User.findById(decodedToken?._id).select("--password --refreshToken")
+        const user = await User.findById(decodedToken?._id).select("-password -refreshToken")
 
         if (!user) {
             return res.status(403).json(new ApiResponse(403, "Forbidden request", "Failed"))
