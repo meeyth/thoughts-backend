@@ -26,7 +26,7 @@ next is a flag for middleware
 import userRouter from './routes/user.routes.js'
 import commentRouter from './routes/comment.routes.js'
 
-import likeRouter from './routes/likes.routes.js'
+import likeRouter from './routes/like.routes.js'
 import blogRouter from './routes/blog.routes.js'
 import followRouter from './routes/follow.routes.js'
 import feedRouter from './routes/feed.routes.js'
