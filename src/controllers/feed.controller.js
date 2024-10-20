@@ -61,11 +61,14 @@ export const getUserFeed = asyncHandler(async (req, res) => {
     });
 
     // Return paginated response with feed data
-    res.status(200).json({
-        page,
-        limit,
-        totalPages: Math.ceil(totalBlogs / limit),
-        totalBlogs,
-        feed
-    });
+    // res.status(200).json();
+
+    return res.status(200)
+        .json(new ApiResponse(200, {
+            page,
+            limit,
+            totalPages: Math.ceil(totalBlogs / limit),
+            totalBlogs,
+            feed
+        }, "Fetched feed successfully"))
 });
