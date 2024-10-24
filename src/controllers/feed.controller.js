@@ -6,8 +6,13 @@ import { Blog } from "../models/blog.model.js";
 
 export const getUserFeed = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const limit = parseInt(req.query.limit) || 3;
+
+    console.log(page, limit);
+    const options = {
+        page,
+        limit,
+    }
 
     // Fetch the IDs of users the current user is following
     const followingIds = await Follow.find({ follower: req.user._id })
@@ -15,12 +20,12 @@ export const getUserFeed = asyncHandler(async (req, res) => {
         .lean()
         .exec();
 
-    console.log(followingIds, "followingIdList");
+    // console.log(followingIds, "followingIdList");
 
     const followingIdList = followingIds.map(follow => follow.following);
 
     // Fetch the blogs from the following users, sorted by createdAt in descending order, with pagination
-    const feed = await Blog.aggregate([
+    const feed = Blog.aggregate([
         {
             $match: { owner: { $in: followingIdList } } // Match blogs by following user IDs
         },
@@ -32,43 +37,44 @@ export const getUserFeed = asyncHandler(async (req, res) => {
                 from: 'users',  // Name of the User collection
                 localField: 'owner',
                 foreignField: '_id',
-                as: 'user'
+                as: 'owner'
             }
         },
         {
-            $unwind: '$user'  // Unwind the user array to get the actual user object
+            $unwind: '$owner'  // Unwind the user array to get the actual user object
         },
         {
-            $skip: skip  // For pagination
-        },
-        {
-            $limit: limit  // Limit the number of results
-        },
-        // {
-        //     $project: {
-        //         title: 1,
-        //         content: 1,
-        //         createdAt: 1,
-        //         'user.name': 1,
-        //         'user.email': 1
-        //     }
-        // }
+            $project: {
+                'owner.email': 0,
+                'owner.about': 0,
+                'owner.coverImage': 0,
+                'owner.fullname': 0,
+                'owner.password': 0,
+                'owner.previousReads': 0,
+                'owner.refreshToken': 0,
+                'owner.createdAt': 0,
+                'owner.updatedAt': 0,
+            }
+        }
     ]);
 
     // Count total blogs for the users followed (for pagination purposes)
-    const totalBlogs = await Blog.countDocuments({
-        owner: { $in: followingIdList }
-    });
+    // const totalBlogs = await Blog.countDocuments({
+    //     owner: { $in: followingIdList }
+    // });
 
-    // Return paginated response with feed data
-    // res.status(200).json();
+    const paginatedFeed = await Blog.aggregatePaginate(feed, options)
 
     return res.status(200)
-        .json(new ApiResponse(200, {
-            page,
-            limit,
-            totalPages: Math.ceil(totalBlogs / limit),
-            totalBlogs,
-            feed
-        }, "Fetched feed successfully"))
+        .json(new ApiResponse(200, paginatedFeed, "Fetched all likes successfully"))
+
+
+    // return res.status(200)
+    //     .json(new ApiResponse(200, {
+    //         page,
+    //         limit,
+    //         totalPages: Math.ceil(totalBlogs / limit),
+    //         totalBlogs,
+    //         feed
+    //     }, "Fetched feed successfully"))
 });

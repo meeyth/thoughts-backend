@@ -136,6 +136,9 @@ const getLikedBlogs = asyncHandler(async (req, res) => {
             }
         },
         {
+            $sort: { createdAt: 1 }  // Sort by createdAt in descending order
+        },
+        {
             $lookup: {
                 //using lookup to get all the liked blogs mapped from the Blog model to the blog attribute in Like model
                 from: "blogs",
@@ -147,6 +150,7 @@ const getLikedBlogs = asyncHandler(async (req, res) => {
         {
             $unwind: "$likedBlogs"
         },
+
         {
             $sort: {
                 "createdAt": -1
