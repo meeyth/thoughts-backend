@@ -34,7 +34,7 @@ import trendingRouter from './routes/trending.routes.js'
 
 
 // Test route
-app.get("/test", (req, res, next) => {
+app.get("/api/v1/test", (req, res, next) => {
     return res.send("Working..")
 })
 
