@@ -33,6 +33,11 @@ import feedRouter from './routes/feed.routes.js'
 import trendingRouter from './routes/trending.routes.js'
 
 
+// Test route
+app.get("/test", (req, res, next) => {
+    return res.send("Working..")
+})
+
 //routes declaration
 app.use("/api/v1/users", userRouter)
 //http://localhost:8000/api/v1/users/register
