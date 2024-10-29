@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken";
+import { options } from "../constants.js"
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -122,11 +123,6 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
-    const options = {
-        httpOnly: true, //only modifiably through server
-        secure: true //same
-    }
-
     return res
         .status(200)
         .cookie("accessToken", accessToken, options)
@@ -154,10 +150,7 @@ const logoutUser = asyncHandler(async (req, res) => {
             new: true
         }
     )
-    const options = {
-        httpOnly: true, //only modifiably through server
-        secure: true //same
-    }
+
     return res
         .status(200)
         .clearCookie("accessToken", options)
@@ -189,10 +182,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
             throw new ApiError(401, "refresh token is invalid or expired")
         }
 
-        const options = {
-            httpOnly: true,
-            secure: true
-        }
         const { accessToken, refreshToken, user: userWithNewRefreshToken } = await generateAccessAndRefreshToken(user._id)
 
         return res
