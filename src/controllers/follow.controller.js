@@ -1,4 +1,4 @@
-import {ApiResponse} from "../utils/ApiResponse.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { User } from "../models/user.model.js"
 import { Follow } from "../models/follow.model.js"
@@ -8,7 +8,7 @@ import mongoose from "mongoose"
 const getFollowingList = async (loggedInUserId) => {
     const allFollowing = await Follow.find({
         //we need the following list of the current logged in user so that we can check if the userId(coming from the body )is present in the following list of loggedInUserId or not.then we can render the follow/unfollow btn accordingly
-        follower: loggedInUserId   
+        follower: loggedInUserId
     });
 
     return allFollowing;
@@ -22,13 +22,14 @@ const toggleFollow = asyncHandler(async (req, res) => {
         following: userId,
         follower: req.user._id
     })
-    
+
     //already following
     if (checkFollowing) {
         await User.findById(userId).updateOne({
             $inc: { totalFollowing: -1 }
         })
-        return res.status(200).json(new ApiResponse(200,false,"Already following...unfollow"))
+        // TODO: delete item from Follow collection , update total followers count for the other user
+        return res.status(200).json(new ApiResponse(200, false, "Already following...unfollow"))
     }
     else {
         await User.findById(userId).updateOne({
@@ -36,27 +37,27 @@ const toggleFollow = asyncHandler(async (req, res) => {
         })
         await Follow.create({
             following: userId,
-            follower: req.user._id  
+            follower: req.user._id
         })
-        return res.status(200).json(new ApiResponse(200,true,"started following"))
+        return res.status(200).json(new ApiResponse(200, true, "started following"))
     }
 
-    
+
 })
 
 
 //successfull
 const getFollowing = asyncHandler(async (req, res) => {
-    const { userId } = req.body
-    const { page , limit  } = req.query
+    const { userId } = req.params
+    const { page, limit } = req.query
     const options = {
         page,
         limit
     }
-    const allFollowing =  Follow.aggregate([
+    const allFollowing = Follow.aggregate([
         {
             $match: {
-                follower:new mongoose.Types.ObjectId(userId)
+                follower: new mongoose.Types.ObjectId(userId)
             }
         },
         {
@@ -64,41 +65,45 @@ const getFollowing = asyncHandler(async (req, res) => {
                 from: "users",
                 localField: "following",
                 foreignField: "_id",
-                as:"followings"
+                as: "following"
+            }
+        },
+        {
+            $unwind: "$following"
+        },
+        {
+            $sort: {
+                createdAt: -1
             }
         },
         {
             $project: {
-                followings:1
+                'following._id': 1,
+                'following.username': 1,
+                'following.avatar': 1,
+                // createdAt: 1
             }
         },
-        {
-            $unwind: "$followings"
-        },
-        {
-            $sort: {
-                "followings.createdAt": -1
-            }
-        }
     ]);
-    const paginatedFollowing = await Follow.aggregatePaginate(allFollowing,options)
-    
+    const paginatedFollowing = await Follow.aggregatePaginate(allFollowing, options)
+
     return res.status(200).json(new ApiResponse(200, paginatedFollowing, "fetched follwings"))
-    
+
 })
 
 //successfull
 const getFollower = asyncHandler(async (req, res) => {
-    const { userId } = req.body
-    const { page , limit  } = req.query
+    const { userId } = req.params
+    const { page, limit } = req.query
     const options = {
         page,
         limit
     }
-    const allFollower =  Follow.aggregate([
+    // console.log(userId);
+    const allFollower = Follow.aggregate([
         {
             $match: {
-                following:new mongoose.Types.ObjectId(userId)
+                following: new mongoose.Types.ObjectId(userId)
             }
         },
         {
@@ -106,25 +111,28 @@ const getFollower = asyncHandler(async (req, res) => {
                 from: "users",
                 localField: "follower",
                 foreignField: "_id",
-                as:"followers"
+                as: "follower"
+            }
+        },
+        {
+            $unwind: "$follower"
+        },
+        {
+            $sort: {
+                createdAt: -1
             }
         },
         {
             $project: {
-                followers:1
+                'follower._id': 1,
+                'follower.username': 1,
+                'follower.avatar': 1,
+                // createdAt: 1
             }
         },
-        {
-            $unwind: "$followers"
-        },
-        {
-            $sort: {
-                "followers.createdAt": -1
-            }
-        }
     ]);
-    
-    const paginatedFollowers = await Follow.aggregatePaginate(allFollower,options)
+
+    const paginatedFollowers = await Follow.aggregatePaginate(allFollower, options)
     return res.status(200).json(new ApiResponse(200, paginatedFollowers, "fetched follwers"))
 })
 export {
