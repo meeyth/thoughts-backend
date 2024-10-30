@@ -26,10 +26,10 @@ const getBlogComments = asyncHandler(async (req, res) => {
             $match: {
                 blog: new mongoose.Types.ObjectId(blogId)
             },
-            
+
         },
         {
-            $sort:{createdAt: -1}
+            $sort: { createdAt: -1 }
         },
         {
             $lookup: {
@@ -47,7 +47,8 @@ const getBlogComments = asyncHandler(async (req, res) => {
                 "owner._id": 1,
                 "owner.username": 1,
                 "owner.avatar": 1,
-                content: 1
+                content: 1,
+                _id: 1
 
             }
         }

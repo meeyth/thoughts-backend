@@ -20,9 +20,11 @@ export const getUserFeed = asyncHandler(async (req, res) => {
         .lean()
         .exec();
 
-    // console.log(followingIds, "followingIdList");
+    // console.log(followingIds, "followingIds");
 
     const followingIdList = followingIds.map(follow => follow.following);
+
+    // console.log(followingIdList, "followingIdList");
 
     // Fetch the blogs from the following users, sorted by createdAt in descending order, with pagination
     const feed = Blog.aggregate([
