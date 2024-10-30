@@ -9,9 +9,10 @@ import { Blog } from "../models/blog.model.js"
 //successfull
 const getBlogComments = asyncHandler(async (req, res) => {
 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 3;
     const { blogId } = req.params
     console.log(blogId);
-    const { page, limit } = req.query
     const options = {
         page,
         limit
@@ -19,31 +20,40 @@ const getBlogComments = asyncHandler(async (req, res) => {
     if (!isValidObjectId(blogId)) {
         throw new ApiError(400, "BlogId is missing")
     }
-    const commentsInBlog = Blog.aggregate([
+    // const blogs=
+    const commentsInBlog = Comment.aggregate([
         {
             $match: {
-                _id: new mongoose.Types.ObjectId(blogId)
-            }
+                blog: new mongoose.Types.ObjectId(blogId)
+            },
+            
+        },
+        {
+            $sort:{createdAt: -1}
         },
         {
             $lookup: {
-                from: "comments",
-                localField: "_id",
-                foreignField: "blog",
-                as: "allComments"
+                from: "users",
+                localField: "owner",
+                foreignField: "_id",
+                as: "owner"
             }
         },
         {
-            $unwind: "$allComments"
+            $unwind: "$owner"
         },
         {
             $project: {
-                allComments: 1,
-                _id: 0
+                "owner._id": 1,
+                "owner.username": 1,
+                "owner.avatar": 1,
+                content: 1
+
             }
         }
     ])
-    const paginatedBlogComments = await Blog.aggregatePaginate(commentsInBlog, options)
+    const paginatedBlogComments = await Comment.aggregatePaginate(commentsInBlog, options)
+    console.log(paginatedBlogComments)
     return res.status(200)
         .json(new ApiResponse(200, paginatedBlogComments, "Fetched all comments successfully"))
 
