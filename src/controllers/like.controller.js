@@ -128,12 +128,19 @@ const getLikedBlogs = asyncHandler(async (req, res) => {
         page,
         limit
     }
-    const likesInBlog = Like.aggregate([
+
+    const blogIds = await Like.find({ likedBy: req.user._id })
+        .select('blog')  // Select only the followingId field
+        .lean()
+        .exec();
+
+    const blogIdList = blogIds.map(like => like.blog);
+
+    console.log(blogIdList);
+
+    const likesInBlog = Blog.aggregate([
         {
-            $match: {
-                //here user is matched directly with the likedBy attribute in the Like model because using likedBy we will get all the documents liked by the currently logged in user
-                likedBy: req.user?._id
-            }
+            $match: { _id: { $in: blogIdList } } // Match blogs by following user IDs
         },
         {
             $sort: { createdAt: 1 }  // Sort by createdAt in descending order
@@ -141,29 +148,33 @@ const getLikedBlogs = asyncHandler(async (req, res) => {
         {
             $lookup: {
                 //using lookup to get all the liked blogs mapped from the Blog model to the blog attribute in Like model
-                from: "blogs",
-                localField: "blog",//this blog attribute in likes
+                from: "users",
+                localField: "owner",//this blog attribute in likes
                 foreignField: "_id",//id field of each blog
-                as: "likedBlogs"
+                as: "owner"
             }
         },
+        // {
+        //     $unwind: "$likedBlog",
+        // },
         {
-            $unwind: "$likedBlogs"
-        },
-
-        {
-            $sort: {
-                "createdAt": -1
-            }
+            $unwind: "$owner",
         },
         {
             $project: {
-                likedBlogs: 1,
-                _id: 1
+                'owner.email': 0,
+                'owner.about': 0,
+                'owner.coverImage': 0,
+                'owner.fullname': 0,
+                'owner.password': 0,
+                'owner.previousReads': 0,
+                'owner.refreshToken': 0,
+                'owner.createdAt': 0,
+                'owner.updatedAt': 0,
             }
         }
     ])
-    const paginatedLikedBlogs = await Like.aggregatePaginate(likesInBlog, options)
+    const paginatedLikedBlogs = await Blog.aggregatePaginate(likesInBlog, options)
 
     console.log(paginatedLikedBlogs);
     return res.status(200)
