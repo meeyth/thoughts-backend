@@ -12,7 +12,7 @@ import {
     updateUserCoverImage,
     getReadHistory
 } from "../controllers/user.controller.js"
-import {upload} from '../middlewares/multer.middleware.js'
+import { upload } from '../middlewares/multer.middleware.js'
 import { verifyJwt } from "../middlewares/Auth.middleware.js"
 import multer from "multer"
 
@@ -33,7 +33,7 @@ router.route("/register").post(
     ]),
     registerUser)
 
-router.route("/login").post(multParse.none(),loginUser)
+router.route("/login").post(multParse.none(), loginUser)
 
 //secured routes
 router.route("/logout").post(verifyJwt, logoutUser)
@@ -51,7 +51,7 @@ router.route("/avatar").patch(verifyJwt, upload.single("avatar"), updateUserAvat
 
 router.route("/cover-image").patch(verifyJwt, upload.single("coverImage"), updateUserCoverImage)
 
-router.route("/profile").get(verifyJwt, getUserProfile)
+router.route("/profile/:userId").get(verifyJwt, getUserProfile)
 
 router.route("/history").get(verifyJwt, getReadHistory)
 

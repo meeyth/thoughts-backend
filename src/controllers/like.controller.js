@@ -162,6 +162,7 @@ const getLikedBlogs = asyncHandler(async (req, res) => {
         },
         {
             $project: {
+                'owner._id': 0,
                 'owner.email': 0,
                 'owner.about': 0,
                 'owner.coverImage': 0,

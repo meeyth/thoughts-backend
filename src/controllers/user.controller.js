@@ -301,7 +301,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
 //successfull
 const getUserProfile = asyncHandler(async (req, res) => {
-    const { username } = req.body
+    const { username } = req.params
 
     const { page, limit } = req.query
     const options = {
