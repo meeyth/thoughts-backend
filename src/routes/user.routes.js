@@ -51,7 +51,7 @@ router.route("/avatar").patch(verifyJwt, upload.single("avatar"), updateUserAvat
 
 router.route("/cover-image").patch(verifyJwt, upload.single("coverImage"), updateUserCoverImage)
 
-router.route("/profile/:userId").get(verifyJwt, getUserProfile)
+router.route("/profile/:username").get(verifyJwt, getUserProfile)
 
 router.route("/history").get(verifyJwt, getReadHistory)
 
