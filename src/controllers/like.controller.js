@@ -143,7 +143,7 @@ const getLikedBlogs = asyncHandler(async (req, res) => {
             $match: { _id: { $in: blogIdList } } // Match blogs by following user IDs
         },
         {
-            $sort: { createdAt: 1 }  // Sort by createdAt in descending order
+            $sort: { createdAt: -1 }  // Sort by createdAt in descending order
         },
         {
             $lookup: {
