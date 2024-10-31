@@ -12,7 +12,7 @@ const router = Router()
 
 //middleware
 
-router.route("/toggle-follow").post(verifyJwt, toggleFollow)
+router.route("/toggle-follow/:userId").put(verifyJwt, toggleFollow)
 router.route("/get-following/:userId").get(verifyJwt, getFollowing)
 router.route("/get-follower/:userId").get(verifyJwt, getFollower)
 router.route("/get-follower/:userId").get(verifyJwt, getFollower)

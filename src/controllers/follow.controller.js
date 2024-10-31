@@ -16,24 +16,36 @@ const getFollowingList = async (loggedInUserId) => {
 
 //successfull
 const toggleFollow = asyncHandler(async (req, res) => {
-    const { userId } = req.body
+    const { userId } = req.params
+
+    console.log(userId);
 
     const checkFollowing = await Follow.findOne({
         following: userId,
-        follower: req.user._id
+        follower: req.user?._id
     })
 
     //already following
     if (checkFollowing) {
         await User.findById(userId).updateOne({
-            $inc: { totalFollowing: -1 }
+            $inc: { totalFollowers: -1 }
+        })
+        await User.findById(req.user?._id).updateOne({
+            $inc: { totalFollowings: -1 }
+        })
+        await Follow.deleteOne({
+            following: userId,
+            follower: req.user._id
         })
         // TODO: delete item from Follow collection , update total followers count for the other user
         return res.status(200).json(new ApiResponse(200, false, "Already following...unfollow"))
     }
     else {
         await User.findById(userId).updateOne({
-            $inc: { totalFollowing: 1 }
+            $inc: { totalFollowers: 1 }
+        })
+        await User.findById(req.user?._id).updateOne({
+            $inc: { totalFollowings: 1 }
         })
         await Follow.create({
             following: userId,
@@ -42,6 +54,7 @@ const toggleFollow = asyncHandler(async (req, res) => {
         return res.status(200).json(new ApiResponse(200, true, "started following"))
     }
 
+    // return res.status(200).json(new ApiResponse(200, true, "started following"))
 
 })
 
