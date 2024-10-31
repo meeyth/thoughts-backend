@@ -15,5 +15,7 @@ const router = Router()
 router.route("/toggle-follow").post(verifyJwt, toggleFollow)
 router.route("/get-following/:userId").get(verifyJwt, getFollowing)
 router.route("/get-follower/:userId").get(verifyJwt, getFollower)
+router.route("/get-follower/:userId").get(verifyJwt, getFollower)
+// router.route("/is/:userId").get(verifyJwt, getFollower)
 
 export default router

@@ -5,6 +5,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken";
 import { options } from "../constants.js"
+import { Follow } from "../models/follow.model.js"
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -308,35 +309,23 @@ const getUserProfile = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Username is missing")
     }
 
-    const profile = await User.aggregate([
-        {
-            $match: {
-                username: username?.toLowerCase()
-            }
-        },
-        {
-            //finding the blogs of the user
-            $project: {
-                // _id: 0,
-                refreshToken: 0,
-                previousReads: 0,
-                email: 0,
-                password: 0,
-                createdAt: 0,
-                updatedAt: 0,
-            }
-        }
-    ])
+    const profile = await User.findOne({
+        username: username?.toLowerCase()
+    }).select("-refreshToken -previousReads -email -password -createdAt -updatedAt")
 
     // console.log(profile);
 
-    if (!profile?.length) {
+    if (!profile) {
         throw new ApiError(404, "Profile does not exist");
     }
+    const userFollowingAlready = await Follow.findOne({
+        follower: req.user?._id,
+        following: profile._id,
+    });
+    console.log(userFollowingAlready);
 
-    // const paginatedReadHistory = await Blog.aggregatePaginate(profile, options)
     return res.status(200)
-        .json(new ApiResponse(200, profile, "User profile fetched successfully"))
+        .json(new ApiResponse(200, { profile, isFollowing: Boolean(userFollowingAlready) }, "User profile fetched successfully"))
 })
 
 //successfull

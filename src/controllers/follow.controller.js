@@ -45,6 +45,19 @@ const toggleFollow = asyncHandler(async (req, res) => {
 
 })
 
+// const isUserFollowed = asyncHandler(async (req, res) => {
+//     const { blogId } = req.params
+
+//     const blogLikedAlready = await Follow.findOne({
+//         blog: blogId,
+//         likedBy: req.user?._id
+//     });
+
+//     // console.log(Boolean(blogLikedAlready));
+//     return res.status(200)
+//         .json(new ApiResponse(200, Boolean(blogLikedAlready), "Blog Liked successfully"));
+// })
+
 
 //successfull
 const getFollowing = asyncHandler(async (req, res) => {
