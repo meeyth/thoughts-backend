@@ -302,18 +302,13 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 //successfull
 const getUserProfile = asyncHandler(async (req, res) => {
     const { username } = req.params
-
-    const { page, limit } = req.query
-    const options = {
-        page,
-        limit
-    }
+    // console.log(username);
 
     if (!username?.trim()) {
         throw new ApiError(400, "Username is missing")
     }
 
-    const profile = User.aggregate([
+    const profile = await User.aggregate([
         {
             $match: {
                 username: username?.toLowerCase()
@@ -321,20 +316,25 @@ const getUserProfile = asyncHandler(async (req, res) => {
         },
         {
             //finding the blogs of the user
-            $lookup: {
-                from: "blogs",
-                localField: "_id",
-                foreignField: "owner",
-                as: "userBlogs"
+            $project: {
+                // _id: 0,
+                refreshToken: 0,
+                previousReads: 0,
+                email: 0,
+                password: 0,
+                createdAt: 0,
+                updatedAt: 0,
             }
         }
     ])
+
+    // console.log(profile);
 
     if (!profile?.length) {
         throw new ApiError(404, "Profile does not exist");
     }
 
-    const paginatedReadHistory = await Blog.aggregatePaginate(profile, options)
+    // const paginatedReadHistory = await Blog.aggregatePaginate(profile, options)
     return res.status(200)
         .json(new ApiResponse(200, profile, "User profile fetched successfully"))
 })
