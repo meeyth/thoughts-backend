@@ -17,11 +17,6 @@ cloudinary.config({
 });
 
 
-// cloudinary.config({
-//     cloud_name: 'dyrd8bmxo',
-//     api_key: '928929366833651',
-//     api_secret: 'DOrxY6hwNLV7JGv8ZdMxsn8xd9Y' // Click 'View API Keys' above to copy your API secret
-// });
 
 
 const uploadOnCloudinary = async (localFilePath) => {
