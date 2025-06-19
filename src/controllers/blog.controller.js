@@ -9,7 +9,7 @@ import { User } from "../models/user.model.js"
 
 //successfull
 const getUserBlog = asyncHandler(async (req, res) => {
-    const { userId } = req.body
+    const { userId } = req.params
     const { page, limit } = req.query
     const options = {
         page,
