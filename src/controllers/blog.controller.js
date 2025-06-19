@@ -38,6 +38,7 @@ const getUserBlog = asyncHandler(async (req, res) => {
 
 //done
 const addBlog = asyncHandler(async (req, res) => {
+    console.log("called ADD BLOG");
 
     const { title, tag, content } = req.body
     console.log(title, tag, content, "Add blog");
