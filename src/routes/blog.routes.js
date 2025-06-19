@@ -12,7 +12,7 @@ import { verifyJwt } from "../middlewares/Auth.middleware.js"
 
 const router = Router()
 
-router.route("/user-blog").get(verifyJwt, getUserBlog)
+router.route("/user-blog/:userId").get(verifyJwt, getUserBlog)
 
 //secured routes
 router.route("/add-blog").post(
