@@ -26,7 +26,10 @@ const getUserBlog = asyncHandler(async (req, res) => {
             $match: {
                 owner: new mongoose.Types.ObjectId(userId)
             },
-        }
+        },
+        {
+            $sort: { createdAt: -1 }  // Sort by createdAt in descending order
+        },
     ])
 
     const paginatedUserBlogs = await Blog.aggregatePaginate(userBlogs, options)
