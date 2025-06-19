@@ -40,12 +40,15 @@ const getUserBlog = asyncHandler(async (req, res) => {
 const addBlog = asyncHandler(async (req, res) => {
 
     const { title, tag, content } = req.body
+    console.log(title, tag, content, "Add blog");
 
     if (!content || !title) {
         throw new ApiError(400, "Required fields are mandatory");
     }
 
     const imageLocalPath = req.files?.image[0]?.path;
+
+    console.log(imageLocalPath, "Img local path");
 
     if (!imageLocalPath) {
         throw new ApiError(400, "image file is required")
