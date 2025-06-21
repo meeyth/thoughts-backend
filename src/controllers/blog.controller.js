@@ -72,6 +72,10 @@ const addBlog = asyncHandler(async (req, res) => {
         image: image.url
     })
 
+    await User.findById(req.user?._id).updateOne({
+        $inc: { totalBlogs: 1 }
+    })
+
     console.log(req.user)
     if (!newBlog) {
         throw new ApiError(400, "Couldn't create new Blog")
@@ -182,6 +186,9 @@ const deleteBlog = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Only owner can delete the blog")
     }
     const checkBlog = await Blog.findByIdAndDelete(blogId)
+    await User.findById(req.user?._id).updateOne({
+        $inc: { totalBlogs: -1 }
+    })
 
     if (!checkBlog) {
         throw new ApiError(400, "Couldn't delete the blog")
