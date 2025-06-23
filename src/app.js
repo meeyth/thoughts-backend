@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser"
 const app = express()
 
 
-console.log(process.env.dev_cors_origin, process.env.prod_cors_origin);
+console.log("access_token_expiry: ", process.env.access_token_expiry);
 
 app.use(cors({
     origin: [process.env.dev_cors_origin, process.env.prod_cors_origin],
