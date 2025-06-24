@@ -107,6 +107,7 @@ const getFollowing = asyncHandler(async (req, res) => {
                 'following._id': 1,
                 'following.username': 1,
                 'following.avatar': 1,
+                'following.fullname': 1,
                 // createdAt: 1
             }
         },
@@ -153,6 +154,7 @@ const getFollower = asyncHandler(async (req, res) => {
                 'follower._id': 1,
                 'follower.username': 1,
                 'follower.avatar': 1,
+                'following.fullname': 1,
                 // createdAt: 1
             }
         },
