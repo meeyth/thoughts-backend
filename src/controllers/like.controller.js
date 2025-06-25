@@ -25,7 +25,7 @@ const toggleBlogLike = asyncHandler(async (req, res) => {
     console.log(blogLikedAlready);
 
     if (blogLikedAlready) {
-        //dislike the video
+        //dislike the blog
 
         //decrement the like count
         await Blog.findById(blogId).updateOne({

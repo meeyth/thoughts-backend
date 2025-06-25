@@ -40,53 +40,6 @@ const getUserBlog = asyncHandler(async (req, res) => {
 })
 
 //done
-const addBlog = asyncHandler(async (req, res) => {
-    console.log("called ADD BLOG");
-
-    const { title, tag, content } = req.body
-    console.log(title, tag, content, "Add blog");
-
-    if (!content || !title) {
-        throw new ApiError(400, "Required fields are mandatory");
-    }
-
-    const imageLocalPath = req.files?.image[0]?.path;
-
-    console.log(imageLocalPath, "Img local path");
-
-    if (!imageLocalPath) {
-        throw new ApiError(400, "image file is required")
-    }
-
-    const image = await uploadOnCloudinary(imageLocalPath)
-
-    if (!image) {
-        throw new ApiError(400, "image file is required")
-    }
-
-    const newBlog = await Blog.create({
-        content: content,
-        title: title,
-        tag: tag,
-        owner: req.user?._id,
-        image: image.url
-    })
-
-    await User.findById(req.user?._id).updateOne({
-        $inc: { totalBlogs: 1 }
-    })
-
-    console.log(req.user)
-    if (!newBlog) {
-        throw new ApiError(400, "Couldn't create new Blog")
-    }
-
-    return res.status(200)
-        .json(new ApiResponse(200, newBlog, "Created new blog successfully"))
-
-})
-
-//successfull
 const getSpecificBlog = asyncHandler(async (req, res) => {
     const { blogId } = req.params;
 
@@ -110,13 +63,25 @@ const getSpecificBlog = asyncHandler(async (req, res) => {
         $inc: { totalReads: 1 }
     });
 
-    // ✅ Add to user's previousReads history
+    // ✅ Add to user's previousReads history (avoid duplicates)
     await User.updateOne(
         { _id: req.user?._id },
-        { $addToSet: { previousReads: blogId } } // avoids duplicates
+        { $addToSet: { previousReads: blogId } }
     );
 
-    return res.status(200).json(new ApiResponse(200, verifyBlog, "Fetched successfully"));
+    // ✅ Check if the blog is liked by the current user
+    const isLiked = await Like.exists({
+        blog: blogId,
+        likedBy: req.user._id
+    });
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            { blog: verifyBlog, isLiked: Boolean(isLiked) },
+            "Fetched successfully"
+        )
+    );
 });
 
 
