@@ -122,44 +122,45 @@ const toggleCommentLike = asyncHandler(async (req, res) => {
 
 //successfull
 const getLikedBlogs = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
 
-    const { page, limit } = req.query
     const options = {
-        page,
-        limit
-    }
+        page: parseInt(page),
+        limit: parseInt(limit),
+    };
 
-    const blogIds = await Like.find({ likedBy: req.user._id })
-        .select('blog')  // Select only the followingId field
-        .lean()
-        .exec();
+    // Step 1: Find all blog IDs liked by user with createdAt (time of liking)
+    const blogLikes = await Like.find({ likedBy: req.user._id })
+        .select('blog createdAt')
+        .sort({ createdAt: -1 }) // Sort by time of like (most recent first)
+        .lean();
 
-    const blogIdList = blogIds.map(like => like.blog);
+    const blogIdList = blogLikes.map((like) => like.blog);
 
-    console.log(blogIdList);
-
+    // Step 2: Maintain like order in lookup using $addFields and $set
     const likesInBlog = Blog.aggregate([
         {
-            $match: { _id: { $in: blogIdList } } // Match blogs by following user IDs
+            $match: { _id: { $in: blogIdList } }
         },
         {
-            $sort: { createdAt: -1 }  // Sort by createdAt in descending order
+            $addFields: {
+                likeOrder: {
+                    $indexOfArray: [blogIdList, "$_id"]
+                }
+            }
+        },
+        {
+            $sort: { likeOrder: 1 } // Maintain order based on like time
         },
         {
             $lookup: {
-                //using lookup to get all the liked blogs mapped from the Blog model to the blog attribute in Like model
                 from: "users",
-                localField: "owner",//this blog attribute in likes
-                foreignField: "_id",//id field of each blog
+                localField: "owner",
+                foreignField: "_id",
                 as: "owner"
             }
         },
-        // {
-        //     $unwind: "$likedBlog",
-        // },
-        {
-            $unwind: "$owner",
-        },
+        { $unwind: "$owner" },
         {
             $project: {
                 'owner._id': 0,
@@ -174,13 +175,13 @@ const getLikedBlogs = asyncHandler(async (req, res) => {
                 'owner.updatedAt': 0,
             }
         }
-    ])
-    const paginatedLikedBlogs = await Blog.aggregatePaginate(likesInBlog, options)
+    ]);
 
-    console.log(paginatedLikedBlogs);
-    return res.status(200)
-        .json(new ApiResponse(200, paginatedLikedBlogs, "Fetched all likes successfully"))
-})
+    const paginatedLikedBlogs = await Blog.aggregatePaginate(likesInBlog, options);
+
+    return res.status(200).json(new ApiResponse(200, paginatedLikedBlogs, "Fetched all liked blogs successfully"));
+});
+
 
 export {
     isBlogLiked,
