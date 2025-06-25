@@ -91,7 +91,7 @@ const getFollowing = asyncHandler(async (req, res) => {
                 from: "users",
                 localField: "following",
                 foreignField: "_id",
-                as: "following"
+                as: "user"
             }
         },
         {
@@ -138,7 +138,7 @@ const getFollower = asyncHandler(async (req, res) => {
                 from: "users",
                 localField: "follower",
                 foreignField: "_id",
-                as: "follower"
+                as: "user"
             }
         },
         {
