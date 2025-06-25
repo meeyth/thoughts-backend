@@ -88,34 +88,37 @@ const addBlog = asyncHandler(async (req, res) => {
 
 //successfull
 const getSpecificBlog = asyncHandler(async (req, res) => {
-
-    const { blogId } = req.params
-
-    // console.log(req.params);
+    const { blogId } = req.params;
 
     if (!blogId || !isValidObjectId(blogId)) {
-        throw new ApiError(400, "Blog id is invalid")
+        throw new ApiError(400, "Blog id is invalid");
     }
+
+    // ✅ Fetch blog and populate owner details
     const verifyBlog = await Blog.findById(blogId)
+        .populate({
+            path: "owner",
+            select: "username fullname avatar"
+        });
 
-    await Blog.findById(blogId).updateOne({
-        $inc: { totalReads: 1 }
-    })
     if (!verifyBlog) {
-        throw new ApiError(400, "Blog does not exist")
+        throw new ApiError(400, "Blog does not exist");
     }
 
+    // ✅ Increment read count
+    await Blog.findByIdAndUpdate(blogId, {
+        $inc: { totalReads: 1 }
+    });
 
-    const addToHistory = await User.updateOne(
+    // ✅ Add to user's previousReads history
+    await User.updateOne(
         { _id: req.user?._id },
-        { $push: { previousReads: (blogId) } }
-    )
+        { $addToSet: { previousReads: blogId } } // avoids duplicates
+    );
 
-    return res.status(200)
-        .json(new ApiResponse(200, verifyBlog, "Fetched successfully"))
+    return res.status(200).json(new ApiResponse(200, verifyBlog, "Fetched successfully"));
+});
 
-
-})
 
 //successfull
 const updateBlog = asyncHandler(async (req, res) => {
