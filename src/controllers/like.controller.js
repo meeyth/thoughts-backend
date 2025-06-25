@@ -179,7 +179,7 @@ const getLikedBlogs = asyncHandler(async (req, res) => {
 
     const paginatedLikedBlogs = await Blog.aggregatePaginate(likesInBlog, options);
 
-    return res.status(200).json(new ApiResponse(200, paginatedLikedBlogs, "Fetched all liked blogs successfully"));
+    return res.status(200).json(new ApiResponse(200, paginatedLikedBlogs, "Fetched all liked blogs successfully in order of they got liked"));
 });
 
 
