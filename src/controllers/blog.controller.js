@@ -40,6 +40,53 @@ const getUserBlog = asyncHandler(async (req, res) => {
 })
 
 //done
+const addBlog = asyncHandler(async (req, res) => {
+    console.log("called ADD BLOG");
+
+    const { title, tag, content } = req.body
+    console.log(title, tag, content, "Add blog");
+
+    if (!content || !title) {
+        throw new ApiError(400, "Required fields are mandatory");
+    }
+
+    const imageLocalPath = req.files?.image[0]?.path;
+
+    console.log(imageLocalPath, "Img local path");
+
+    if (!imageLocalPath) {
+        throw new ApiError(400, "image file is required")
+    }
+
+    const image = await uploadOnCloudinary(imageLocalPath)
+
+    if (!image) {
+        throw new ApiError(400, "image file is required")
+    }
+
+    const newBlog = await Blog.create({
+        content: content,
+        title: title,
+        tag: tag,
+        owner: req.user?._id,
+        image: image.url
+    })
+
+    await User.findById(req.user?._id).updateOne({
+        $inc: { totalBlogs: 1 }
+    })
+
+    console.log(req.user)
+    if (!newBlog) {
+        throw new ApiError(400, "Couldn't create new Blog")
+    }
+
+    return res.status(200)
+        .json(new ApiResponse(200, newBlog, "Created new blog successfully"))
+
+})
+
+//successfull
 const getSpecificBlog = asyncHandler(async (req, res) => {
     const { blogId } = req.params;
 
