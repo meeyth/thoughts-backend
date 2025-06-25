@@ -95,7 +95,7 @@ const getFollowing = asyncHandler(async (req, res) => {
             }
         },
         {
-            $unwind: "$following"
+            $unwind: "$user"
         },
         {
             $sort: {
@@ -104,10 +104,10 @@ const getFollowing = asyncHandler(async (req, res) => {
         },
         {
             $project: {
-                'following._id': 1,
-                'following.username': 1,
-                'following.avatar': 1,
-                'following.fullname': 1,
+                'user._id': 1,
+                'user.username': 1,
+                'user.avatar': 1,
+                'user.fullname': 1,
                 // createdAt: 1
             }
         },
@@ -142,7 +142,7 @@ const getFollower = asyncHandler(async (req, res) => {
             }
         },
         {
-            $unwind: "$follower"
+            $unwind: "$user"
         },
         {
             $sort: {
@@ -151,10 +151,10 @@ const getFollower = asyncHandler(async (req, res) => {
         },
         {
             $project: {
-                'follower._id': 1,
-                'follower.username': 1,
-                'follower.avatar': 1,
-                'following.fullname': 1,
+                'user._id': 1,
+                'user.username': 1,
+                'user.avatar': 1,
+                'user.fullname': 1,
                 // createdAt: 1
             }
         },

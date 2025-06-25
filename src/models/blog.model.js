@@ -6,7 +6,7 @@ const blogSchema = new Schema(
             type: String,
             required: true,
             trim: true,
-            index:true
+            index: true
         },
         tag: {
             type: String,
@@ -19,7 +19,7 @@ const blogSchema = new Schema(
         },
         readTime: {
             type: Number,
-            default: 1  
+            default: 1
         },
         totalReads: {
             type: Number,
@@ -40,7 +40,7 @@ const blogSchema = new Schema(
             type: Number,
             default: 0
         },
-        
+
     },
     {
         timestamps: true
@@ -49,4 +49,4 @@ const blogSchema = new Schema(
 
 blogSchema.plugin(mongooseAggregatePaginate);
 
-export const Blog=mongoose.model("Blog",blogSchema)
+export const Blog = mongoose.model("Blog", blogSchema)

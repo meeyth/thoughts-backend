@@ -9,13 +9,13 @@ const followSchema = new Schema(
         },
         following: {
             type: Schema.Types.ObjectId,
-            ref:"User"
+            ref: "User"
         }
     },
     {
         timestamps: true
     }
-) 
+)
 
 followSchema.plugin(mongooseAggregatePaginate)
-export const Follow=mongoose.model("Follow",followSchema)
+export const Follow = mongoose.model("Follow", followSchema)
