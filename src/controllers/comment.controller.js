@@ -62,33 +62,40 @@ const getBlogComments = asyncHandler(async (req, res) => {
 
 //successfull
 const addComment = asyncHandler(async (req, res) => {
-    // TODO: add a comment to a video
-    const { blogId } = req.body
-    const { content } = req.body
+    const { blogId, content } = req.body;
+
     if (!blogId || !isValidObjectId(blogId)) {
         throw new ApiError(400, "Blog id is not valid");
     }
-    const blog = await Blog.findById(blogId)
+
+    const blog = await Blog.findById(blogId);
     if (!blog) {
         throw new ApiError(400, "Blog not found");
     }
+
     if (!content) {
         throw new ApiError(400, "Content not found");
     }
+
     const comment = await Comment.create({
-        content: content,
+        content,
         blog: blogId,
-        owner: req.user?._id
-    })
-    console.log(req.user)
+        owner: req.user?._id,
+    });
+
     if (!comment) {
-        throw new ApiError(400, "Couldn't comment")
+        throw new ApiError(400, "Couldn't comment");
     }
 
-    return res.status(200)
-        .json(new ApiResponse(200, comment, "Commented successfully"))
+    // ✅ Increment commentCount in Blog by 1
+    await Blog.findByIdAndUpdate(blogId, {
+        $inc: { commentCount: 1 }
+    });
 
-})
+    return res.status(200)
+        .json(new ApiResponse(200, comment, "Commented successfully"));
+});
+
 
 //successfull
 const updateComment = asyncHandler(async (req, res) => {
