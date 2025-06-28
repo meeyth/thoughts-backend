@@ -102,6 +102,9 @@ const updateComment = asyncHandler(async (req, res) => {
     // TODO: update a comment
     const { commentId } = req.body
     const { newComment } = req.body
+
+    console.log(commentId);
+
     if (!commentId || !isValidObjectId(commentId)) {
         throw new ApiError(400, "Comment id invalid")
     }
