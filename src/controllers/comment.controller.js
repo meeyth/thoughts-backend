@@ -154,6 +154,13 @@ const deleteComment = asyncHandler(async (req, res) => {
     if (!comment) {
         throw new ApiError(400, "Couldn't delete the comment")
     }
+
+    // ✅ Decrement commentCount in Blog by 1
+    await Blog.findByIdAndUpdate(comment.blog, {
+        $inc: { commentCount: -1 }
+    });
+
+
     return res.status(200)
         .json(new ApiResponse(200, comment, "Comment deleted successfully"))
 })
