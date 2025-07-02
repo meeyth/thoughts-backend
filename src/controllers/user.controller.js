@@ -361,20 +361,24 @@ const getReadHistory = asyncHandler(async (req, res) => {
 
 const getUsersSortedByBlogs = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
-    const currentUserId = req.user._id;
+    const currentUserId = req.user._id; // Assumes middleware adds req.user
 
-    // Fetch the current user's following list
-    const currentUser = await User.findById(currentUserId).select('following');
-    const excludedUserIds = [currentUserId, ...(currentUser.following || [])];
+    // Step 1: Get all users followed by the current user
+    const followedUsers = await Follow.find({ follower: currentUserId }).select("following");
+    const followedUserIds = followedUsers.map(doc => doc.following); // ObjectId array
 
+    // Step 2: Build exclusion list (followed users + self)
+    const excludedUserIds = [currentUserId, ...followedUserIds]; // All ObjectId
+
+    // Step 3: Aggregation pipeline
     const aggregateQuery = User.aggregate([
         {
             $match: {
-                _id: { $nin: excludedUserIds }
+                _id: { $nin: excludedUserIds } // Exclude followed users + self
             }
         },
         {
-            $sort: { totalBlogs: -1, _id: 1 } // Tie-breaker to avoid duplicates
+            $sort: { totalBlogs: -1, _id: 1 } // Sort by blog count (tie-breaker: _id)
         },
         {
             $project: {
@@ -391,16 +395,16 @@ const getUsersSortedByBlogs = asyncHandler(async (req, res) => {
 
     const options = {
         page: parseInt(page),
-        limit: parseInt(limit)
+        limit: parseInt(limit),
     };
 
+    // Step 4: Paginate the results
     const paginatedUsers = await User.aggregatePaginate(aggregateQuery, options);
 
     return res
         .status(200)
         .json(new ApiResponse(200, paginatedUsers, "Filtered users sorted by blog count"));
 });
-
 
 
 export {
