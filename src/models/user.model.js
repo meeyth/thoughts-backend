@@ -8,10 +8,10 @@ const userSchema = new Schema(
         username: {
             type: String,
             required: true,
-            unique: true, 
+            unique: true,
             lowercase: true,
             trim: true,
-            index:true
+            index: true
         },
         about: {
             type: String,
@@ -29,7 +29,7 @@ const userSchema = new Schema(
             type: String,
             required: true,
             trim: true,
-            index:true
+            index: true
         },
         avatar: {
             type: String,//cloudinary url
@@ -58,10 +58,10 @@ const userSchema = new Schema(
         ],
         password: {
             type: String,
-            required:[true,"Password is required"]
+            required: [true, "Password is required"]
         },
         refreshToken: {
-            type:String
+            type: String
         }
     },
     {
@@ -76,14 +76,14 @@ userSchema.pre("save", async function (next) {
     next()
 })
 
-userSchema.methods.isPasswordCorrect= async function(password) {
-    return await bcrypt.compare(password,this.password)
+userSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password)
 }
 // model's hook-this hook functionality is provided by mongoose
 // 
 userSchema.methods.generateAccessToken = function () {
     return jwt.sign(
-    //arguments- object(actual data),key,time period
+        //arguments- object(actual data),key,time period
         {
             _id: this._id,
             email: this.email,

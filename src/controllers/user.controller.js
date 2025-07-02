@@ -361,10 +361,20 @@ const getReadHistory = asyncHandler(async (req, res) => {
 
 const getUsersSortedByBlogs = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
+    const currentUserId = req.user._id;
+
+    // Fetch the current user's following list
+    const currentUser = await User.findById(currentUserId).select('following');
+    const excludedUserIds = [currentUserId, ...(currentUser.following || [])];
 
     const aggregateQuery = User.aggregate([
         {
-            $sort: { totalBlogs: -1, _id: 1 } // Descending by blog count
+            $match: {
+                _id: { $nin: excludedUserIds }
+            }
+        },
+        {
+            $sort: { totalBlogs: -1, _id: 1 } // Tie-breaker to avoid duplicates
         },
         {
             $project: {
@@ -388,8 +398,9 @@ const getUsersSortedByBlogs = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, paginatedUsers, "Users fetched by blog count"));
+        .json(new ApiResponse(200, paginatedUsers, "Filtered users sorted by blog count"));
 });
+
 
 
 export {
