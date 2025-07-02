@@ -178,7 +178,7 @@ const updateBlog = asyncHandler(async (req, res) => {
             }
         },
         { new: true }
-    ).select("-password")
+    )
 
     if (!updatedBlog) {
         throw new ApiError(400, "Couldn't update blog")

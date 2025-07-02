@@ -10,7 +10,8 @@ import {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    getReadHistory
+    getReadHistory,
+    getUsersSortedByBlogs
 } from "../controllers/user.controller.js"
 import { upload } from '../middlewares/multer.middleware.js'
 import { verifyJwt } from "../middlewares/Auth.middleware.js"
@@ -54,6 +55,8 @@ router.route("/cover-image").patch(verifyJwt, upload.single("coverImage"), updat
 router.route("/profile/:username").get(verifyJwt, getUserProfile)
 
 router.route("/history").get(verifyJwt, getReadHistory)
+
+router.route("/get-users").get(verifyJwt, getUsersSortedByBlogs)
 
 
 export default router  

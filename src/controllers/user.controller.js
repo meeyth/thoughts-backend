@@ -359,11 +359,50 @@ const getReadHistory = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, paginatedReadHistory, "read history fetched successfully"))
 })
 
+const getUsersSortedByBlogs = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 10 } = req.query;
 
+    const aggregateQuery = User.aggregate([
+        {
+            $sort: { totalBlogs: -1 } // Descending by blog count
+        },
+        {
+            $project: {
+                username: 1,
+                fullname: 1,
+                avatar: 1,
+                coverImage: 1,
+                totalBlogs: 1,
+                totalFollowers: 1,
+                totalFollowings: 1,
+            }
+        }
+    ]);
+
+    const options = {
+        page: parseInt(page),
+        limit: parseInt(limit)
+    };
+
+    const paginatedUsers = await User.aggregatePaginate(aggregateQuery, options);
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, paginatedUsers, "Users fetched by blog count"));
+});
 
 
 export {
-    registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser, updateAccountDetails,
-    updateUserAvatar, updateUserCoverImage,
-    getUserProfile, getReadHistory
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshAccessToken,
+    changeCurrentPassword,
+    getCurrentUser,
+    updateAccountDetails,
+    updateUserAvatar,
+    updateUserCoverImage,
+    getUserProfile,
+    getReadHistory,
+    getUsersSortedByBlogs,
 }
