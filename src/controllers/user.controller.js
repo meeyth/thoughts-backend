@@ -364,7 +364,7 @@ const getUsersSortedByBlogs = asyncHandler(async (req, res) => {
 
     const aggregateQuery = User.aggregate([
         {
-            $sort: { totalBlogs: -1 } // Descending by blog count
+            $sort: { totalBlogs: -1, _id: 1 } // Descending by blog count
         },
         {
             $project: {
