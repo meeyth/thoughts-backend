@@ -41,6 +41,8 @@ import followRouter from './routes/follow.routes.js'
 import feedRouter from './routes/feed.routes.js'
 import trendingRouter from './routes/trending.routes.js'
 
+import authRouter from './routes/auth.routes.js'
+
 
 // Test route
 app.get("/api/v1/test", (req, res, next) => {
@@ -63,6 +65,8 @@ app.use("/api/v1/users", followRouter)
 
 app.use("/api/v1/users", feedRouter)
 app.use("/api/v1/users", trendingRouter)
+
+app.use("/api/v1/auth", authRouter)
 
 export { app };
 
