@@ -1,7 +1,7 @@
 // require('dotenv').config({ path: './env' })
 
 import "dotenv/config";
-import job from "./utils/cron.js";
+import { startJobs } from './jobs/cron.js';
 import connectDB from "./db/index.js";
 import { app } from './app.js'
 
@@ -11,7 +11,7 @@ import { app } from './app.js'
 // })
 
 
-job.start();
+startJobs();
 
 
 connectDB()
