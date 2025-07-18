@@ -12,7 +12,7 @@ const getBlogComments = asyncHandler(async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 3;
     const { blogId } = req.params
-    console.log(blogId);
+    // console.log(blogId);
     const options = {
         page,
         limit
@@ -54,7 +54,7 @@ const getBlogComments = asyncHandler(async (req, res) => {
         }
     ])
     const paginatedBlogComments = await Comment.aggregatePaginate(commentsInBlog, options)
-    console.log(paginatedBlogComments)
+    // console.log(paginatedBlogComments)
     return res.status(200)
         .json(new ApiResponse(200, paginatedBlogComments, "Fetched all comments successfully"))
 
@@ -103,7 +103,7 @@ const updateComment = asyncHandler(async (req, res) => {
     const { commentId } = req.body
     const { newComment } = req.body
 
-    console.log(commentId);
+    // console.log(commentId);
 
     if (!commentId || !isValidObjectId(commentId)) {
         throw new ApiError(400, "Comment id invalid")
@@ -142,9 +142,9 @@ const deleteComment = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Comment id is not valid")
     }
 
-    console.log(commentId)
+    // console.log(commentId)
     const verifyUser = await Comment.findById(commentId)
-    console.log(verifyUser)
+    // console.log(verifyUser)
     if (verifyUser.owner.toString() !== req.user?._id.toString()) {
         throw new ApiError(400, "Only valid user can delete the comment")
     }

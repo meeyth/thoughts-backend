@@ -10,7 +10,7 @@ import { Blog } from "../models/blog.model.js"
 const toggleBlogLike = asyncHandler(async (req, res) => {
     const { blogId } = req.params
 
-    console.log(blogId, "toggleBlogLike");
+    // console.log(blogId, "toggleBlogLike");
 
     if (!blogId) {
         throw new ApiError(400, "Blog not found")
@@ -22,7 +22,7 @@ const toggleBlogLike = asyncHandler(async (req, res) => {
         likedBy: req.user?._id
     });
 
-    console.log(blogLikedAlready);
+    // console.log(blogLikedAlready);
 
     if (blogLikedAlready) {
         //dislike the blog

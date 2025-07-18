@@ -1,5 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js"
-import { sendOtpToEmail, verifyOtp } from "../services/otp.service.js";
+import { sendOtpToEmail, verifyOtpAndSetPassword } from "../services/otp.service.js";
+
 
 export const requestOtp = asyncHandler(async (req, res) => {
     const { email } = req.body;
@@ -10,11 +11,19 @@ export const requestOtp = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, message: "OTP sent to email" });
 });
 
-export const validateOtp = asyncHandler(async (req, res) => {
-    const { email, otp } = req.body;
-    if (!email || !otp) throw new Error("Email and OTP are required");
 
-    await verifyOtp(email, otp);
+export const validateOtpAndResetPassword = asyncHandler(async (req, res) => {
+    const { email, otp, newPassword } = req.body;
 
-    res.status(200).json({ success: true, message: "OTP verified successfully" });
+    if (!email || !otp || !newPassword) {
+        res.status(400);
+        throw new Error("Email, OTP and new password are required");
+    }
+
+    await verifyOtpAndSetPassword(email, otp, newPassword);
+
+    res.status(200).json({ success: true, message: "Password reset successfully" });
 });
+
+
+

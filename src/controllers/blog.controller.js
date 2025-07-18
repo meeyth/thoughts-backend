@@ -17,7 +17,7 @@ const getUserBlog = asyncHandler(async (req, res) => {
         limit
     }
 
-    console.log(options)
+    // console.log(options)
 
     if (!userId || !isValidObjectId(userId)) {
         throw new ApiError(400, "User isn't registered or userId is invalid")
@@ -42,10 +42,10 @@ const getUserBlog = asyncHandler(async (req, res) => {
 
 //done
 const addBlog = asyncHandler(async (req, res) => {
-    console.log("called ADD BLOG");
+    // console.log("called ADD BLOG");
 
     const { title, tag, content } = req.body
-    console.log(title, tag, content, "Add blog");
+    // console.log(title, tag, content, "Add blog");
 
     if (!content || !title) {
         throw new ApiError(400, "Required fields are mandatory");
@@ -53,7 +53,7 @@ const addBlog = asyncHandler(async (req, res) => {
 
     const imageLocalPath = req.files?.image[0]?.path;
 
-    console.log(imageLocalPath, "Img local path");
+    // console.log(imageLocalPath, "Img local path");
 
     if (!imageLocalPath) {
         throw new ApiError(400, "image file is required")
@@ -77,7 +77,7 @@ const addBlog = asyncHandler(async (req, res) => {
         $inc: { totalBlogs: 1 }
     })
 
-    console.log(req.user)
+    // console.log(req.user)
     if (!newBlog) {
         throw new ApiError(400, "Couldn't create new Blog")
     }
@@ -197,7 +197,7 @@ const deleteBlog = asyncHandler(async (req, res) => {
 
     // console.log(commentId)
     const verifyUser = await Blog.findById(blogId)
-    console.log(verifyUser)
+    // console.log(verifyUser)
     if (verifyUser.owner.toString() !== req.user?._id.toString()) {
         throw new ApiError(400, "Only owner can delete the blog")
     }

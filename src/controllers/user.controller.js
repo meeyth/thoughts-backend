@@ -112,7 +112,7 @@ const loginUser = asyncHandler(async (req, res) => {
     //6. access and refresh token
     //7. send cookies
 
-    console.log(req.body)
+    // console.log(req.body)
     const { email, username, password } = req.body
     if (!username || !email) {
         throw new ApiError(400, "Username or email is required")
@@ -337,7 +337,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
         follower: req.user?._id,
         following: profile._id,
     });
-    console.log(userFollowingAlready);
+    // console.log(userFollowingAlready);
 
     return res.status(200)
         .json(new ApiResponse(200, { profile, isFollowing: Boolean(userFollowingAlready) }, "User profile fetched successfully"))
