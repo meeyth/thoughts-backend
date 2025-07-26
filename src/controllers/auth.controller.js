@@ -15,6 +15,8 @@ export const requestOtp = asyncHandler(async (req, res) => {
 export const validateOtpAndResetPassword = asyncHandler(async (req, res) => {
     const { email, otp, newPassword } = req.body;
 
+    console.log("OTP: ", otp);
+
     if (!email || !otp || !newPassword) {
         res.status(400);
         throw new Error("Email, OTP and new password are required");
