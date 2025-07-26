@@ -27,7 +27,7 @@ export const verifyOtpAndSetPassword = async (email, enteredOtp, newPassword) =>
         throw new Error("OTP expired or not found");
     }
 
-    console.log("--------------------------", enteredOtp, record.otp);
+    // console.log("--------------------------", enteredOtp, record.otp);
 
     const isMatch = await bcrypt.compare(enteredOtp, record.otp);
 
